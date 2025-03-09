@@ -17,7 +17,7 @@ private:
     // Output file for detailed logging
     std::ofstream outputFile;
     
-    // Round counter
+    // Round counter (initialized to 0)
     int roundNumber;
     
     // Score counters
@@ -110,14 +110,14 @@ public:
     }
     
     Move makeMove(const std::vector<std::pair<Move, Move>>& history) override {
-        // If we have at least one move in history, log the round
+        // Increment round number for each move (including the first one)
+        roundNumber++;
+        
+        // If we have at least one move in history, log the round with human's previous move
         if (!history.empty() && outputFile.is_open()) {
             // Get the last move pair
             const auto& lastMove = history.back();
             Move humanMove = lastMove.first;
-            
-            // Increment round number
-            roundNumber++;
             
             // Log round information
             outputFile << "Round " << roundNumber << std::endl;
@@ -129,6 +129,9 @@ public:
             for (char& c : humanMoveStr) c = std::toupper(c);
             
             outputFile << "  HUMAN chose " << humanMoveStr << std::endl;
+        } else if (outputFile.is_open()) {
+            // For the first round, just log the round number
+            outputFile << "Round " << roundNumber << std::endl;
         }
         
         if (history.size() < SEQUENCE_LENGTH - 1) {
