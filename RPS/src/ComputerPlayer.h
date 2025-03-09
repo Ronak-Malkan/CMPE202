@@ -19,10 +19,8 @@ public:
     }
     
     void recordResult(Move playerMove, Move computerMove) override {
-        // Add the moves to the history
-        history.emplace_back(playerMove, computerMove);
         
-        // Update the frequencies in the strategy
+        history.emplace_back(playerMove, computerMove);
         strategy->updateFrequencies(history);
     }
     

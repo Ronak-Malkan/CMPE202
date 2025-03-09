@@ -22,11 +22,11 @@ public:
         // Seed the random number generator
         std::srand(static_cast<unsigned int>(std::time(nullptr)));
         
-    // Open output file in the same directory as freq.txt (build folder)
-    outputFile.open("output-random.txt");
-    if (!outputFile.is_open()) {
-        std::cerr << "Failed to open output-random.txt for writing." << std::endl;
-    }
+        // Open output file in the same directory as freq.txt (build folder)
+        outputFile.open("output-random.txt");
+        if (!outputFile.is_open()) {
+            std::cerr << "Failed to open output-random.txt for writing." << std::endl;
+        }
         
         // Initialize counters
         roundNumber = 0;
@@ -36,7 +36,6 @@ public:
     }
     
     ~RandomStrategy() {
-        // Close the file if it's open
         if (outputFile.is_open()) {
             outputFile.close();
         }
