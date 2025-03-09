@@ -61,15 +61,15 @@ public:
     void updateFrequencies(const std::vector<std::pair<Move, Move>>& history) override {
         // No frequencies to update for random strategy
         
+        // Increment round number for each update (including the first one)
+        roundNumber++;
+        
         // If we have at least one move in history, record the round
         if (!history.empty()) {
             // Get the last move pair
             const auto& lastMove = history.back();
             Move humanMove = lastMove.first;
             Move computerMove = lastMove.second;
-            
-            // Increment round number
-            roundNumber++;
             
             // Determine winner
             int result = determineWinner(humanMove, computerMove);
