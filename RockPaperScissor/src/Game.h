@@ -3,6 +3,7 @@
 
 #include "Player.h"
 #include "ComputerPlayer.h"
+#include "HumanPlayer.h"  // Include the complete header for HumanPlayer
 #include <memory>
 #include <iostream>
 #include <iomanip>
@@ -24,7 +25,8 @@ public:
           computerScore(0), 
           ties(0),
           rounds(numRounds) {}
-    
+
+    // The original play() method for the console version remains unchanged.
     void play() {
         std::cout << "Starting a new game with " << rounds << " rounds." << std::endl;
         std::cout << "Computer is using " << computerPlayer->getStrategyName() << " strategy." << std::endl;
@@ -86,6 +88,16 @@ public:
         
         // Save the computer's strategy state
         computerPlayer->saveState();
+    }
+
+    // Added getters for round-by-round use (for the GUI):
+    HumanPlayer* getHumanPlayer() {
+        // We assume that humanPlayer actually points to a HumanPlayer.
+        return dynamic_cast<HumanPlayer*>(humanPlayer.get());
+    }
+    
+    ComputerPlayer* getComputerPlayer() {
+        return computerPlayer.get();
     }
 };
 
