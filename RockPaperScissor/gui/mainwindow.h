@@ -59,6 +59,9 @@ private:
     QLabel *tiesLabel;
     QLabel *winPercentageLabel;
 
+    // NEW: Prediction label
+    QLabel *predictionLabel;
+
     std::unique_ptr<RPSGameManager> gameManager;
 
     void updateDisplay();

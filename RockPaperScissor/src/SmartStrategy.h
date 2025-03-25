@@ -26,6 +26,10 @@ private:
     
     // Output file for detailed logging
     std::ofstream outputFile;
+
+    // NEW: Flag and storage for the prediction.
+    bool predictionValid;
+    Move lastPredictedHumanMove = Move::ROCK; 
     
     // Round counter and score counters
     int roundNumber;
@@ -115,12 +119,12 @@ private:
             }
         }
         
-        // If no aggregated data, return a random move.
         if (!anyData || aggregated.empty()) {
+            predictionValid = false;
             return Move(std::rand() % 3);
         }
         
-        // Pick the move with the highest total frequency.
+        predictionValid = true;
         Move predictedMove = Move::ROCK;
         int maxFreq = 0;
         for (const auto& entry : aggregated) {
@@ -144,6 +148,7 @@ public:
         humanWins = 0;
         computerWins = 0;
         ties = 0;
+        predictionValid = false;
         
         // Load frequencies from file
         loadState();
@@ -186,6 +191,7 @@ public:
             }
         }
         if (!sufficientHistory) {
+            predictionValid = false;
             if (outputFile.is_open()) {
                 outputFile << "    Insufficient history to predict across any sequence length." << std::endl;
                 outputFile << "    Computer will choose randomly." << std::endl;
@@ -210,8 +216,9 @@ public:
             return computerMove;
         }
         
-        // Aggregate predictions from all sequence lengths
+        // Aggregate predictions from all sequence lengths.
         Move predictedMove = aggregatePredictions(history);
+        lastPredictedHumanMove = predictedMove;
         
         if (outputFile.is_open()) {
             std::string predictedMoveStr = (predictedMove == Move::ROCK ? "ROCK" :
@@ -219,15 +226,13 @@ public:
             outputFile << "    Aggregated predicted human choice: " << predictedMoveStr << std::endl;
         }
         
-        // Choose the move that beats the aggregated prediction
+        // Choose the move that beats the aggregated prediction.
         Move computerMove = chooseCounterMove(predictedMove);
         
         if (outputFile.is_open()) {
             std::string computerMoveStr = moveToString(computerMove);
             for (char& c : computerMoveStr) c = std::toupper(c);
             outputFile << "  COMPUTER chose " << computerMoveStr << std::endl;
-            
-            // Determine round winner using the last human move (if available)
             const auto& lastMove = history.back();
             Move humanMove = lastMove.first;
             int result = determineWinner(humanMove, computerMove);
@@ -380,6 +385,16 @@ public:
     
     std::string getName() const override {
         return "Smart";
+    }
+
+    // NEW: Getter for the last predicted human move.
+    Move getLastPredictedHumanMove() const {
+        return lastPredictedHumanMove;
+    }
+    
+    // NEW: Getter for prediction validity.
+    bool isPredictionValid() const {
+        return predictionValid;
     }
 };
 

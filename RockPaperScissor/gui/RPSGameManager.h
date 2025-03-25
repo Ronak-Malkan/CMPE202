@@ -4,8 +4,6 @@
 #include <memory>
 #include <string>
 #include "Move.h"
-
-// Instead of forward-declaring, include the complete headers:
 #include "HumanPlayer.h"
 #include "ComputerPlayer.h"
 #include "Game.h"
@@ -27,6 +25,15 @@ public:
     int getHumanScore() const;
     int getComputerScore() const;
     int getTies() const;
+
+    // NEW: Getter for the last predicted human move.
+    Move getLastPredictedHumanMove() const;
+
+    // NEW: Check if a valid prediction exists.
+    bool isPredictionValid() const;
+
+    // NEW: Expose the current strategy name.
+    std::string getStrategyName() const;
 
 private:
     int chosenStrategy;

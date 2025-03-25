@@ -52,7 +52,6 @@ void RPSGameManager::playRound(Move humanMove)
     {
         // Before indicating game over, save the strategy state.
         if (game) {
-            // Call saveState() on the computer player's strategy.
             game->getComputerPlayer()->saveState();
         }
         lastRoundResult = "Game over!";
@@ -61,16 +60,19 @@ void RPSGameManager::playRound(Move humanMove)
 
     currentRound++;
 
-    // Assuming you have added getters in Game to access players.
-    // If not, you may need to refactor your Game class.
-    auto* cPlayer = game->getComputerPlayer();  // Ensure you add such a getter in Game.h
-    auto* hPlayer = game->getHumanPlayer();       // Ensure you add such a getter in Game.h
+    // Retrieve players using getters from Game (ensure these getters exist in Game.h)
+    auto* cPlayer = game->getComputerPlayer();
+    auto* hPlayer = game->getHumanPlayer();
 
     // Get computer move
     Move computerMove = cPlayer->makeMove();
     lastComputerMove = computerMove;
 
-    // Determine winner using your existing function determineWinner()
+    // NEW: Retrieve the predicted human move from the computer player's strategy.
+    // This works only if the strategy is Smart.
+    // (If not, the getter will return a default value.)
+    // We do not store it separately here; we'll fetch it via getLastPredictedHumanMove().
+    
     int result = determineWinner(humanMove, computerMove);
     if (result > 0)
     {
@@ -88,7 +90,6 @@ void RPSGameManager::playRound(Move humanMove)
         lastRoundResult = "It's a tie!";
     }
 
-    // Record the round's moves
     hPlayer->recordResult(humanMove, computerMove);
     cPlayer->recordResult(humanMove, computerMove);
 }
@@ -99,3 +100,25 @@ std::string RPSGameManager::getRoundResult() const { return lastRoundResult; }
 int RPSGameManager::getHumanScore() const { return humanScore; }
 int RPSGameManager::getComputerScore() const { return computerScore; }
 int RPSGameManager::getTies() const { return tieCount; }
+
+std::string RPSGameManager::getStrategyName() const {
+    if (game && game->getComputerPlayer())
+        return game->getComputerPlayer()->getStrategyName();
+    return "";
+}
+
+Move RPSGameManager::getLastPredictedHumanMove() const {
+    if (game && game->getComputerPlayer())
+        return game->getComputerPlayer()->getLastPredictedHumanMove();
+    return Move::ROCK;
+}
+
+bool RPSGameManager::isPredictionValid() const {
+    // If the current strategy is Smart, check its prediction validity.
+    if (game && game->getComputerPlayer()) {
+        auto *smart = dynamic_cast<SmartStrategy*>(game->getComputerPlayer()->getStrategy());
+        if (smart)
+            return smart->isPredictionValid();
+    }
+    return false;
+}

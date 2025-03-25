@@ -17,8 +17,8 @@ MainWindow::MainWindow(QWidget *parent)
 
     // Create the main vertical layout with some spacing and margins
     mainLayout = new QVBoxLayout(centralWidget);
-    mainLayout->setSpacing(15);                // spacing between child layouts
-    mainLayout->setContentsMargins(20, 20, 20, 20); // left, top, right, bottom
+    mainLayout->setSpacing(15);
+    mainLayout->setContentsMargins(20, 20, 20, 20);
 
     // --- Settings Layout: Strategy and Rounds ---
     settingsLayout = new QHBoxLayout();
@@ -86,6 +86,15 @@ MainWindow::MainWindow(QWidget *parent)
     computerMoveLabel->setAlignment(Qt::AlignCenter);
     displayLayout->addWidget(computerMoveLabel);
 
+    // NEW: Prediction label
+    predictionLabel = new QLabel("Predicted Human Move: No Prediction");
+    predictionLabel->setAlignment(Qt::AlignCenter);
+    QFont predFont = predictionLabel->font();
+    predFont.setPointSize(14);
+    predFont.setBold(true);
+    predictionLabel->setFont(predFont);
+    displayLayout->addWidget(predictionLabel);
+
     // Result label
     resultLabel = new QLabel("Result: -");
     QFont resultFont = resultLabel->font();
@@ -114,10 +123,8 @@ MainWindow::MainWindow(QWidget *parent)
     winPercentageLabel->setAlignment(Qt::AlignCenter);
     scoreLayout->addWidget(winPercentageLabel);
 
-    // Add the score sub-layout
     displayLayout->addLayout(scoreLayout);
 
-    // Add the display layout to the main layout
     mainLayout->addLayout(displayLayout);
 
     // --- Connect signals and slots ---
@@ -132,7 +139,6 @@ MainWindow::MainWindow(QWidget *parent)
     connect(paperButton, &QPushButton::clicked, this, &MainWindow::onMoveButtonClicked);
     connect(scissorsButton, &QPushButton::clicked, this, &MainWindow::onMoveButtonClicked);
 
-    // Initialize the display
     updateDisplay();
 }
 
@@ -171,9 +177,7 @@ void MainWindow::onMoveButtonClicked()
     else if (text == "Scissors")
         gameManager->playRound(Move::SCISSORS);
 
-    // After the user plays, we assume the computer has played immediately
     turnLabel->setText("Computer Turn Completed");
-
     updateDisplay();
 }
 
@@ -186,6 +190,14 @@ void MainWindow::updateDisplay()
     Move compMove = gameManager->getLastComputerMove();
     computerMoveLabel->setText(QString("Computer Move: %1")
                                .arg(QString::fromStdString(moveToString(compMove))));
+
+    // Prediction: if strategy is Smart and valid, display it; otherwise show No Prediction.
+    if (gameManager->getStrategyName() == "Smart" && gameManager->isPredictionValid()) {
+        predictionLabel->setText(QString("Predicted Human Move: %1")
+            .arg(QString::fromStdString(moveToString(gameManager->getLastPredictedHumanMove()))));
+    } else {
+        predictionLabel->setText("Predicted Human Move: No Prediction");
+    }
 
     // Round result
     std::string res = gameManager->getRoundResult();
